@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(head -10 grep -n \"middleware\\\\|auth\\\\|role\" c:/xampp/htdocs/sencrime/app/Http/Controllers/AgentController.php)",
+      "Bash(head -10 grep -n \"middleware\\\\|auth\\\\|role\" c:/xampp/htdocs/sencrime/app/Http/Controllers/ServiceController.php)",
+      "Bash(head -15 grep -n \"region\\\\|service_id\" c:/xampp/htdocs/sencrime/resources/views/infractions/edit.blade.php)",
+      "Bash(head -15 grep -n \"region\\\\|service_id\" c:/xampp/htdocs/sencrime/resources/views/immigrations/edit.blade.php)",
+      "Bash(php artisan:*)",
+      "Bash(__NEW_LINE_40f5a9758deff739__ sed:*)",
+      "Bash(flutter pub:*)",
+      "Bash(netsh advfirewall:*)",
+      "Bash(curl -s -L \"http://localhost:8080/sencrime/public/\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://192.168.1.9:8080/sencrime/public/\")"
+    ]
+  }
+}
