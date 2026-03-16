@@ -103,8 +103,30 @@ class DemandeTransportApiController extends Controller
             return response()->json(['message' => 'Non autorisé'], 403);
         }
 
+        // Si c'est le transporteur qui annule une course acceptée/en cours
+        // → remettre en attente pour qu'un autre transporteur puisse la prendre
+        if ($demande->transporteur_id === $user->id && in_array($demande->statut, ['acceptee', 'en_cours'])) {
+            $demande->update([
+                'statut'          => 'en_attente',
+                'transporteur_id' => null,
+                'acceptee_at'     => null,
+                'nb_annulations'  => $demande->nb_annulations + 1,
+            ]);
+
+            NotificationService::send(
+                $demande->demandeur_id,
+                '⚠️ Transporteur annulé',
+                'Le transporteur a annulé. Votre demande est à nouveau disponible.',
+                'transport_annule', 'fa-exclamation-triangle', 'warning',
+                ['demande_id' => $demande->id]
+            );
+
+            return response()->json(['message' => 'Course annulée, demande remise en attente', 'statut' => 'en_attente']);
+        }
+
+        // Annulation définitive (par le demandeur, ou autre cas)
         $demande->update(['statut' => 'annulee']);
-        return response()->json(['message' => 'Demande annulée']);
+        return response()->json(['message' => 'Demande annulée', 'statut' => 'annulee']);
     }
 
     public function positionTransporteur(Request $request, $id)
