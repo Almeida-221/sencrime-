@@ -168,19 +168,20 @@ class AuthController extends Controller
     private function formatUser($user): array
     {
         return [
-            'id'         => $user->id,
-            'name'       => $user->name,
-            'email'      => $user->email,
-            'telephone'  => $user->telephone,
-            'region'     => $user->region,
-            'service_id' => $user->service_id,
-            'service'    => $user->service ? [
+            'id'             => $user->id,
+            'name'           => $user->name,
+            'email'          => $user->email,
+            'telephone'      => $user->telephone,
+            'region'         => $user->region,
+            'service_id'     => $user->service_id,
+            'service'        => $user->service ? [
                 'id'     => $user->service->id,
                 'nom'    => $user->service->nom,
                 'region' => $user->service->region,
             ] : null,
-            'roles'  => $user->getRoleNames(),
-            'avatar' => $user->avatar ? asset('storage/' . $user->avatar) : null,
+            'roles'          => $user->getRoleNames(),
+            'avatar'         => $user->avatar ? asset('storage/' . $user->avatar) : null,
+            'modules_actifs' => $user->modules_actifs ?? ['accident', 'infraction', 'immigration'],
         ];
     }
 }

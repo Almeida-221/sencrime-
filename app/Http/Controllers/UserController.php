@@ -78,13 +78,14 @@ class UserController extends Controller
         ]);
 
         $user = User::create([
-            'name'       => $request->name,
-            'email'      => $request->email,
-            'password'   => Hash::make($request->password),
-            'telephone'  => $request->telephone,
-            'service_id' => $request->service_id,
-            'region'     => $request->region,
-            'actif'      => true,
+            'name'           => $request->name,
+            'email'          => $request->email,
+            'password'       => Hash::make($request->password),
+            'telephone'      => $request->telephone,
+            'service_id'     => $request->service_id,
+            'region'         => $request->region,
+            'actif'          => true,
+            'modules_actifs' => $request->modules_actifs ?? ['accident', 'infraction', 'immigration'],
         ]);
 
         // Sécurité : superviseur/admin_region ne peut attribuer que le rôle agent
@@ -132,12 +133,13 @@ class UserController extends Controller
         ]);
 
         $data = [
-            'name'       => $request->name,
-            'email'      => $request->email,
-            'telephone'  => $request->telephone,
-            'service_id' => $request->service_id,
-            'region'     => $request->region,
-            'actif'      => $request->has('actif'),
+            'name'           => $request->name,
+            'email'          => $request->email,
+            'telephone'      => $request->telephone,
+            'service_id'     => $request->service_id,
+            'region'         => $request->region,
+            'actif'          => $request->has('actif'),
+            'modules_actifs' => $request->modules_actifs ?? ['accident', 'infraction', 'immigration'],
         ];
 
         if ($request->filled('password')) {

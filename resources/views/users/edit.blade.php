@@ -91,6 +91,41 @@
                         <label class="form-check-label fw-bold" for="actif">Compte actif</label>
                     </div>
                 </div>
+
+                {{-- Modules actifs — visible uniquement si rôle = agent --}}
+                @php $isAgent = $user->hasRole('agent'); @endphp
+                <div class="col-12" id="modules-section" style="{{ $isAgent ? '' : 'display:none;' }}">
+                    <div class="card border-primary border-opacity-25">
+                        <div class="card-header bg-primary bg-opacity-10 py-2">
+                            <h6 class="mb-0 fw-bold text-primary">
+                                <i class="fas fa-mobile-alt me-2"></i>Modules actifs (Application mobile)
+                            </h6>
+                        </div>
+                        <div class="card-body py-3">
+                            <p class="text-muted small mb-3">Sélectionnez les modules auxquels cet agent aura accès dans l'application mobile.</p>
+                            @php
+                                $currentModules = old('modules_actifs', $user->modules_actifs ?? ['accident','infraction','immigration']);
+                            @endphp
+                            <div class="row g-2">
+                                @foreach(['accident' => ['Accidents', 'fa-car-crash', 'danger'], 'infraction' => ['Infractions', 'fa-gavel', 'warning'], 'immigration' => ['Immigration Clandestine', 'fa-passport', 'success']] as $key => $info)
+                                <div class="col-md-4">
+                                    <div class="form-check form-check-inline border rounded p-2 w-100">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="modules_actifs[]"
+                                               id="module_edit_{{ $key }}"
+                                               value="{{ $key }}"
+                                               {{ in_array($key, $currentModules) ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-semibold" for="module_edit_{{ $key }}">
+                                            <i class="fas {{ $info[1] }} text-{{ $info[2] }} me-1"></i>
+                                            {{ $info[0] }}
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="mt-4 d-flex gap-2">
@@ -101,3 +136,13 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+// Afficher/masquer la section modules selon le rôle sélectionné
+document.querySelector('select[name="role"]').addEventListener('change', function () {
+    document.getElementById('modules-section').style.display =
+        this.value === 'agent' ? 'block' : 'none';
+});
+</script>
+@endpush

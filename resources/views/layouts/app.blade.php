@@ -175,6 +175,11 @@
             <a href="{{ route('surveillance.index') }}" class="nav-link {{ request()->routeIs('surveillance.*') ? 'active' : '' }}">
                 <i class="fas fa-map-marked-alt"></i> Carte de Surveillance
             </a>
+            @role('super_admin|admin|superviseur')
+            <a href="{{ route('transports.index') }}" class="nav-link {{ request()->routeIs('transports.*') ? 'active' : '' }}">
+                <i class="fas fa-truck-medical"></i> Transports
+            </a>
+            @endrole
 
             <div class="nav-section">Immigration</div>
             <a href="{{ route('immigrations.index') }}" class="nav-link {{ request()->routeIs('immigrations.*') ? 'active' : '' }}">

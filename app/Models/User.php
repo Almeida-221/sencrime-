@@ -22,6 +22,7 @@ class User extends Authenticatable
         'region',
         'actif',
         'avatar',
+        'modules_actifs',
     ];
 
     protected $hidden = [
@@ -32,7 +33,8 @@ class User extends Authenticatable
 
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'actif' => 'boolean',
+        'actif'             => 'boolean',
+        'modules_actifs'    => 'array',
     ];
 
     public function service()

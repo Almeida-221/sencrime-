@@ -118,11 +118,36 @@ class DemandeTransportApiController extends Controller
             ->where('transporteur_id', $request->user()->id)
             ->firstOrFail();
 
+        $demande->update([
+            'lat_transporteur'    => $request->latitude,
+            'lng_transporteur'    => $request->longitude,
+            'position_updated_at' => now(),
+        ]);
+
         return response()->json([
             'demande_id' => $demande->id,
             'latitude'   => $request->latitude,
             'longitude'  => $request->longitude,
             'statut'     => $demande->statut,
+        ]);
+    }
+
+    public function getPosition(Request $request, $id)
+    {
+        $demande = DemandeTransport::findOrFail($id);
+        $user    = $request->user();
+
+        // Only demandeur or the transporteur can see position
+        if ($demande->demandeur_id !== $user->id && $demande->transporteur_id !== $user->id) {
+            return response()->json(['message' => 'Non autorisé'], 403);
+        }
+
+        return response()->json([
+            'demande_id'          => $demande->id,
+            'latitude'            => $demande->lat_transporteur,
+            'longitude'           => $demande->lng_transporteur,
+            'position_updated_at' => $demande->position_updated_at?->toIso8601String(),
+            'statut'              => $demande->statut,
         ]);
     }
 }

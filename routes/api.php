@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/transports/{id}/terminer', [DemandeTransportApiController::class, 'terminer']);
     Route::post('/transports/{id}/annuler', [DemandeTransportApiController::class, 'annuler']);
     Route::post('/transports/{id}/position', [DemandeTransportApiController::class, 'positionTransporteur']);
+    Route::get('/transports/{id}/position',  [DemandeTransportApiController::class, 'getPosition']);
 
     // Notifications
     Route::get('/notifications', [NotificationApiController::class, 'index']);

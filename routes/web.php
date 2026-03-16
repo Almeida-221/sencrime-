@@ -16,6 +16,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\RapportController;
 use App\Http\Controllers\NotificationWebController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\TransportController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -57,6 +58,11 @@ Route::post('services-retribues/{servicesRetribue}/paiement', [ServiceRetribueCo
 
 // Immigration clandestine
 Route::resource('immigrations', ImmigrationClandestineController::class);
+
+// Transports (historique + surveillance live pour admin/superviseur)
+Route::get('/transports', [TransportController::class, 'index'])->name('transports.index');
+Route::get('/transports/{transport}', [TransportController::class, 'show'])->name('transports.show');
+Route::get('/transports/{transport}/position', [TransportController::class, 'livePosition'])->name('transports.position');
 
 // Surveillance (carte interactive)
 Route::get('/surveillance', [SurveillanceController::class, 'index'])->name('surveillance.index');

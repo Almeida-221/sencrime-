@@ -14,12 +14,14 @@ class DemandeTransport extends Model
     protected $fillable = [
         'accident_id', 'demandeur_id', 'transporteur_id', 'statut',
         'latitude_depart', 'longitude_depart', 'latitude_arrivee', 'longitude_arrivee',
+        'lat_transporteur', 'lng_transporteur', 'position_updated_at',
         'notes', 'acceptee_at', 'terminee_at',
     ];
 
     protected $casts = [
-        'acceptee_at' => 'datetime',
-        'terminee_at' => 'datetime',
+        'acceptee_at'         => 'datetime',
+        'terminee_at'         => 'datetime',
+        'position_updated_at' => 'datetime',
     ];
 
     public function accident()
