@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard', [DashboardApiController::class, 'index']);
 
     // Accidents
+    Route::get('/types-accidents', [AccidentApiController::class, 'typesAccidents']);
     Route::get('/accidents', [AccidentApiController::class, 'index']);
     Route::post('/accidents', [AccidentApiController::class, 'store']);
     Route::get('/accidents/{id}', [AccidentApiController::class, 'show']);

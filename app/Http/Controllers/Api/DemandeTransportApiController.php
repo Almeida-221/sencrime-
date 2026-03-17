@@ -16,9 +16,15 @@ class DemandeTransportApiController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($user->hasRole('transporteur')) {
-            $query->where(function ($q) use ($user) {
-                $q->where('statut', 'en_attente')
-                  ->orWhere('transporteur_id', $user->id);
+            $userRegion = $user->region;
+            $query->where(function ($q) use ($user, $userRegion) {
+                $q->where(function ($q2) use ($user, $userRegion) {
+                    // Demandes en attente : seulement celles de la même région
+                    $q2->where('statut', 'en_attente');
+                    if ($userRegion) {
+                        $q2->whereHas('accident', fn($a) => $a->where('region', $userRegion));
+                    }
+                })->orWhere('transporteur_id', $user->id); // ses propres courses (toutes régions)
             });
         } else {
             $query->where('demandeur_id', $user->id);

@@ -14,6 +14,28 @@ use Illuminate\Support\Facades\Storage;
 
 class AccidentApiController extends Controller
 {
+    // Retourne tous les types d'accidents distincts enregistrés en base
+    public function typesAccidents()
+    {
+        $types = Accident::query()
+            ->select('type_accident')
+            ->distinct()
+            ->whereNotNull('type_accident')
+            ->orderBy('type_accident')
+            ->pluck('type_accident');
+
+        // Fusionner avec les types par défaut pour ne jamais avoir une liste vide
+        $defaults = [
+            'Collision frontale', 'Collision latérale', 'Renversement',
+            'Chute de véhicule', 'Accident piéton', 'Accident moto',
+            'Accident camion', 'Autre',
+        ];
+
+        $merged = collect($defaults)->merge($types)->unique()->sort()->values();
+
+        return response()->json($merged);
+    }
+
     public function index(Request $request)
     {
         $user  = $request->user();

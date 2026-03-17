@@ -122,10 +122,11 @@ class UserController extends Controller
     {
         $this->authorizeRegionAccess($user);
 
+        $pwMin = $request->password_strength === 'leger' ? 4 : 8;
         $request->validate([
             'name'       => 'required|string|max:255',
             'email'      => 'required|string|email|max:255|unique:users,email,' . $user->id,
-            'password'   => 'nullable|string|min:8|confirmed',
+            'password'   => "nullable|string|min:{$pwMin}|confirmed",
             'telephone'  => 'nullable|string|max:20',
             'service_id' => 'nullable|exists:services,id',
             'region'     => 'nullable|string|max:100',

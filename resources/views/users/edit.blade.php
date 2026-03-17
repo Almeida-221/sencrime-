@@ -23,14 +23,21 @@
                     <input type="email" name="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $user->email) }}" required>
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-bold">Nouveau mot de passe <small class="text-muted fw-normal">(laisser vide pour ne pas changer)</small></label>
                     <input type="password" name="password" class="form-control @error('password') is-invalid @enderror">
                     @error('password')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label fw-bold">Confirmer mot de passe</label>
                     <input type="password" name="password_confirmation" class="form-control">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">Complexité du mot de passe</label>
+                    <select name="password_strength" class="form-select">
+                        <option value="fort">Fort (min. 8 caractères)</option>
+                        <option value="leger">Léger (min. 4 caractères)</option>
+                    </select>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label fw-bold">Téléphone</label>
