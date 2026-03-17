@@ -130,9 +130,16 @@
                 </select>
             </div>
 
-            <!-- Commune / Localité -->
+            <!-- Brigade / Service -->
             <div class="col-md-2">
-                <input type="text" id="filter-commune" class="form-control form-control-sm" placeholder="Commune / Localité">
+                <select id="filter-service" class="form-select form-select-sm">
+                    <option value="">Toutes les brigades</option>
+                    @foreach($services as $s)
+                        <option value="{{ $s->id }}" {{ isset($scopeService) && $scopeService == $s->id ? 'selected' : '' }}>
+                            {{ $s->nom }}@if($isSuperAdmin) — {{ $s->region }}@endif
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <!-- Période -->
@@ -298,7 +305,7 @@ function loadMarkers() {
     const periode = document.getElementById('filter-periode').value;
     const params  = new URLSearchParams({
         region:     document.getElementById('filter-region').value,
-        commune:    document.getElementById('filter-commune').value,
+        service_id: document.getElementById('filter-service').value,
         periode:    periode,
         date_debut: periode === 'custom' ? document.getElementById('filter-date-debut').value : '',
         date_fin:   periode === 'custom' ? document.getElementById('filter-date-fin').value   : '',
@@ -384,7 +391,7 @@ document.getElementById('btn-filtrer').addEventListener('click', loadMarkers);
 
 document.getElementById('btn-reset').addEventListener('click', () => {
     document.getElementById('filter-region').value   = '';
-    document.getElementById('filter-commune').value  = '';
+    document.getElementById('filter-service').value  = '';
     document.getElementById('filter-periode').value  = '';
     document.getElementById('filter-date-debut').value = '';
     document.getElementById('filter-date-fin').value   = '';
@@ -396,7 +403,7 @@ document.getElementById('btn-reset').addEventListener('click', () => {
 });
 
 // Recharger automatiquement si filtre modifié
-['filter-region', 'filter-periode', 'chk-accidents', 'chk-infractions', 'chk-immigrations']
+['filter-region', 'filter-service', 'filter-periode', 'chk-accidents', 'chk-infractions', 'chk-immigrations']
     .forEach(id => document.getElementById(id).addEventListener('change', loadMarkers));
 
 // ── Chargement initial ────────────────────────────────────────────────

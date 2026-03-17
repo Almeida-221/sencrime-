@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Accident;
 use App\Models\ImmigrationClandestine;
 use App\Models\Infraction;
+use App\Models\Service;
 use App\Traits\ScopeByRole;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -38,6 +39,7 @@ class SurveillanceController extends Controller
     public function index()
     {
         $user         = auth()->user();
+        $isSuperAdmin = $user->hasRole('super_admin');
         $isAdmin      = $user->hasRole(['super_admin', 'admin']);
         $scopeRegion  = $user->getRegionEffective();
         $scopeService = $user->service_id;
@@ -46,7 +48,15 @@ class SurveillanceController extends Controller
             ? array_keys(self::REGION_COORDS)
             : ($scopeRegion ? [$scopeRegion] : array_keys(self::REGION_COORDS));
 
-        return view('surveillance.index', compact('regions', 'isAdmin', 'scopeRegion', 'scopeService'));
+        // Liste des brigades/services pour le filtre
+        $servicesQuery = Service::where('actif', true)->orderBy('nom');
+        if (!$isSuperAdmin && $scopeRegion) {
+            // Admin/superviseur : uniquement les brigades de leur région
+            $servicesQuery->where('region', $scopeRegion);
+        }
+        $services = $servicesQuery->get(['id', 'nom', 'region']);
+
+        return view('surveillance.index', compact('regions', 'services', 'isAdmin', 'isSuperAdmin', 'scopeRegion', 'scopeService'));
     }
 
     /**
@@ -59,7 +69,7 @@ class SurveillanceController extends Controller
 
         // ── Filtres communs ──────────────────────────────────────────
         $region    = $request->region;
-        $commune   = $request->commune;      // recherche dans localite
+        $serviceId = $request->service_id;   // filtre par brigade
         $periode   = $request->periode;      // today | week | month | year
         $types     = $request->types ?? ['accidents', 'infractions', 'immigrations'];
 
@@ -69,8 +79,8 @@ class SurveillanceController extends Controller
         if (in_array('accidents', $types)) {
             $query = Accident::with('service');
             $this->applyScopeFilters($query);
-            if ($region)  $query->where('region', $region);
-            if ($commune) $query->where('localite', 'like', "%{$commune}%");
+            if ($region)    $query->where('region', $region);
+            if ($serviceId) $query->where('service_id', $serviceId);
             if ($dateMin) $query->whereDate('date_accident', '>=', $dateMin);
             if ($dateMax) $query->whereDate('date_accident', '<=', $dateMax);
 
@@ -106,8 +116,8 @@ class SurveillanceController extends Controller
         if (in_array('infractions', $types)) {
             $query = Infraction::with(['typeInfraction', 'service']);
             $this->applyScopeFilters($query);
-            if ($region)  $query->where('region', $region);
-            if ($commune) $query->where('localite', 'like', "%{$commune}%");
+            if ($region)    $query->where('region', $region);
+            if ($serviceId) $query->where('service_id', $serviceId);
             if ($dateMin) $query->whereDate('date_infraction', '>=', $dateMin);
             if ($dateMax) $query->whereDate('date_infraction', '<=', $dateMax);
 
@@ -145,8 +155,8 @@ class SurveillanceController extends Controller
         if (in_array('immigrations', $types)) {
             $query = ImmigrationClandestine::with('service');
             $this->applyScopeFilters($query);
-            if ($region)  $query->where('region', $region);
-            if ($commune) $query->where('localite', 'like', "%{$commune}%");
+            if ($region)    $query->where('region', $region);
+            if ($serviceId) $query->where('service_id', $serviceId);
             if ($dateMin) $query->whereDate('date_interception', '>=', $dateMin);
             if ($dateMax) $query->whereDate('date_interception', '<=', $dateMax);
 
