@@ -15,7 +15,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')->hourly();
+        // Purge automatique des messages éphémères (48h)
+        $schedule->command('chat:purger-ephemeres')->hourly();
     }
 
     /**

@@ -470,6 +470,12 @@
             </div>
         </div>
 
+        {{-- Bannière messages éphémères --}}
+        <div id="ephemeralBanner" style="display:none;background:linear-gradient(90deg,#fff3cd,#ffeeba);border-bottom:1px solid #ffc107;padding:6px 16px;font-size:0.8rem;color:#856404;align-items:center;gap:8px;">
+            <i class="fas fa-clock"></i>
+            <span><strong>Messages éphémères activés</strong> — chaque message est automatiquement supprimé après <strong>48 heures</strong>.</span>
+        </div>
+
         {{-- Messages --}}
         <div class="chat-messages" id="chatMessages" style="display:none;"></div>
 
@@ -649,11 +655,12 @@ function ouvrirConversation(id, nom, type, participants) {
     const convEl = document.getElementById('conv-' + id);
     if (convEl) { convEl.classList.add('active'); }
 
-    // Afficher zone messages
+    // Afficher zone messages + bannière éphémère
     document.getElementById('chatPlaceholder').style.display  = 'none';
     document.getElementById('chatHeader').style.display        = '';
     document.getElementById('chatMessages').style.display      = '';
     document.getElementById('chatInputArea').style.display     = '';
+    document.getElementById('ephemeralBanner').style.display   = 'flex';
 
     // Header
     const avatar = document.getElementById('headerAvatar');
