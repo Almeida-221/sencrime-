@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Amende;
 use App\Models\Infraction;
 use App\Models\TypeInfraction;
 use Illuminate\Http\Request;
@@ -82,6 +83,33 @@ class InfractionApiController extends Controller
             'note_vocale'                 => $request->hasFile('note_vocale')
                 ? $request->file('note_vocale')->store('infractions/audio', 'public')
                 : null,
+        ]);
+
+        // ── Créer automatiquement l'amende correspondante ────────────
+        $typeInfraction = TypeInfraction::find($infraction->type_infraction_id);
+        $montant = $typeInfraction?->amende_min ?? 0;
+
+        $numeroAmende = 'AME-' . date('Y') . '-' . str_pad(
+            Amende::whereYear('created_at', date('Y'))->count() + 1,
+            5, '0', STR_PAD_LEFT
+        );
+
+        Amende::create([
+            'numero_amende'         => $numeroAmende,
+            'infraction_id'         => $infraction->id,
+            'type_infraction_id'    => $infraction->type_infraction_id,
+            'date_amende'           => $infraction->date_infraction,
+            'date_echeance'         => now()->addDays(30)->toDateString(),
+            'nom_contrevenant'      => $infraction->nom_contrevenant,
+            'prenom_contrevenant'   => $infraction->prenom_contrevenant,
+            'adresse_contrevenant'  => $infraction->adresse_contrevenant,
+            'montant'               => $montant,
+            'montant_paye'          => 0,
+            'statut_paiement'       => 'en_attente',
+            'localite'              => $infraction->localite,
+            'region'                => $infraction->region,
+            'service_id'            => $infraction->service_id,
+            'user_id'               => $user->id,
         ]);
 
         return response()->json($infraction->load('typeInfraction'), 201);
