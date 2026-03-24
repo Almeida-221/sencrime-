@@ -64,6 +64,8 @@ Route::get('/transports', [TransportController::class, 'index'])->name('transpor
 Route::get('/transports/live-all', [TransportController::class, 'liveAll'])->name('transports.live-all');
 Route::get('/transports/{transport}', [TransportController::class, 'show'])->name('transports.show');
 Route::get('/transports/{transport}/position', [TransportController::class, 'livePosition'])->name('transports.position');
+Route::delete('/transports/{transport}', [TransportController::class, 'destroy'])->name('transports.destroy');
+Route::delete('/transports/accident/{accidentId}', [TransportController::class, 'destroyByAccident'])->name('transports.destroy-by-accident');
 
 // Surveillance (carte interactive)
 Route::get('/surveillance', [SurveillanceController::class, 'index'])->name('surveillance.index');

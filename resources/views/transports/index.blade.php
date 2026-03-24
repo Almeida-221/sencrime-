@@ -230,7 +230,7 @@
                                 <span class="text-muted">—</span>
                             @endif
                         </td>
-                        <td>
+                        <td class="d-flex gap-1">
                             <a href="{{ route('transports.show', $t) }}"
                                class="btn btn-sm btn-info btn-action"
                                title="{{ in_array($t->statut, ['acceptee','en_cours']) ? 'Surveiller en live' : 'Voir détail' }}">
@@ -240,6 +240,15 @@
                                     <i class="fas fa-eye"></i>
                                 @endif
                             </a>
+                            @hasanyrole('super_admin|admin')
+                            <form method="POST" action="{{ route('transports.destroy', $t) }}"
+                                  onsubmit="return confirm('Supprimer cette demande de transport ?')">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn btn-sm btn-danger btn-action" title="Supprimer">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </form>
+                            @endhasanyrole
                         </td>
                     </tr>
                     @empty

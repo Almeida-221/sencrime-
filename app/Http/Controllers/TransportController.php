@@ -96,6 +96,26 @@ class TransportController extends Controller
     }
 
     /**
+     * Supprimer une demande de transport (super_admin / admin régional uniquement).
+     */
+    public function destroy(DemandeTransport $transport)
+    {
+        $transport->delete();
+        return redirect()->route('transports.index')
+            ->with('success', 'Demande de transport supprimée.');
+    }
+
+    /**
+     * Supprimer toutes les demandes liées à un accident.
+     */
+    public function destroyByAccident(int $accidentId)
+    {
+        $count = DemandeTransport::where('accident_id', $accidentId)->delete();
+        return redirect()->back()
+            ->with('success', "$count demande(s) supprimée(s) pour cet accident.");
+    }
+
+    /**
      * Endpoint AJAX — retourne la position live du transporteur pour l'admin.
      */
     public function livePosition(DemandeTransport $transport)
