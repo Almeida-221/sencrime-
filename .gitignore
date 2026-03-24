@@ -16,3 +16,6 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
+
+# Firebase - clés privées (ne jamais committer)
+/storage/firebase/

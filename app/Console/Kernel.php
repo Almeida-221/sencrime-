@@ -17,6 +17,9 @@ class Kernel extends ConsoleKernel
     {
         // Purge automatique des messages éphémères (48h)
         $schedule->command('chat:purger-ephemeres')->hourly();
+
+        // Expirer les demandes de transport en attente depuis > 7h
+        $schedule->command('transport:expirer-demandes')->everyThirtyMinutes();
     }
 
     /**
