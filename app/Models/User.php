@@ -23,6 +23,7 @@ class User extends Authenticatable
         'actif',
         'avatar',
         'modules_actifs',
+        'fcm_token',
     ];
 
     protected $hidden = [
