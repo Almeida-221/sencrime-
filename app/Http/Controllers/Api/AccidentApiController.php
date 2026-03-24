@@ -88,8 +88,12 @@ class AccidentApiController extends Controller
 
         $user = $request->user();
         $year = date('Y');
-        $last = Accident::whereYear('created_at', $year)->count() + 1;
-        $numero = 'ACC-' . $year . '-' . str_pad($last, 5, '0', STR_PAD_LEFT);
+        // Utiliser withTrashed pour éviter les doublons avec les supprimés
+        $lastNumero = Accident::withTrashed()
+            ->whereYear('created_at', $year)
+            ->max(DB::raw("CAST(SUBSTRING_INDEX(numero_rapport, '-', -1) AS UNSIGNED)"));
+        $next = ($lastNumero ?? 0) + 1;
+        $numero = 'ACC-' . $year . '-' . str_pad($next, 5, '0', STR_PAD_LEFT);
 
         DB::beginTransaction();
         try {
