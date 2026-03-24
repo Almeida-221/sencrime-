@@ -12,23 +12,7 @@ scp -o StrictHostKeyChecking=no storage\firebase\service-account.json tony@180.1
 
 REM --- 2. Deploiement principal ---
 echo [2/2] Deploiement Laravel...
-ssh -o StrictHostKeyChecking=no tony@180.149.196.39 "^
-  echo almeida | sudo -S chown -R tony:tony /var/www/html/sencrime && ^
-  cd /var/www/html/sencrime && ^
-  git pull origin main && ^
-  composer install --no-dev --optimize-autoloader --quiet && ^
-  php artisan migrate --force && ^
-  mkdir -p storage/firebase && ^
-  cp /tmp/service-account.json storage/firebase/service-account.json && ^
-  chmod 600 storage/firebase/service-account.json && ^
-  php artisan config:clear && ^
-  php artisan route:clear && ^
-  php artisan view:clear && ^
-  php artisan cache:clear && ^
-  php artisan optimize && ^
-  echo almeida | sudo -S chown -R www-data:www-data /var/www/html/sencrime/storage /var/www/html/sencrime/bootstrap/cache && ^
-  (crontab -l 2>/dev/null | grep -q 'sencrime' || (crontab -l 2>/dev/null; echo '* * * * * cd /var/www/html/sencrime && php artisan schedule:run >> /dev/null 2>&1') | crontab -) && ^
-  echo DEPLOIEMENT_TERMINE"
+ssh -o StrictHostKeyChecking=no tony@180.149.196.39 "echo almeida | sudo -S chown -R tony:tony /var/www/html/sencrime && cd /var/www/html/sencrime && git pull origin main && composer install --no-dev --optimize-autoloader --quiet && php artisan migrate --force && mkdir -p storage/firebase && cp /tmp/service-account.json storage/firebase/service-account.json && chmod 600 storage/firebase/service-account.json && grep -q FIREBASE_PROJECT_ID .env || echo 'FIREBASE_PROJECT_ID=sencrimemob' >> .env && php artisan config:clear && php artisan route:clear && php artisan view:clear && php artisan cache:clear && php artisan optimize && echo almeida | sudo -S chown -R www-data:www-data /var/www/html/sencrime/storage /var/www/html/sencrime/bootstrap/cache && (crontab -l 2>/dev/null | grep -q sencrime || (crontab -l 2>/dev/null; echo '* * * * * cd /var/www/html/sencrime && php artisan schedule:run >> /dev/null 2>&1') | crontab -) && echo DEPLOIEMENT_TERMINE"
 
 echo.
 echo Code de retour SSH : %ERRORLEVEL%
