@@ -83,6 +83,7 @@ class TransportController extends Controller
             'en_cours'   => (clone $statsQuery)->where('statut', 'en_cours')->count(),
             'terminee'   => (clone $statsQuery)->where('statut', 'terminee')->count(),
             'annulee'    => (clone $statsQuery)->where('statut', 'annulee')->count(),
+            'expiree'    => (clone $statsQuery)->where('statut', 'expiree')->count(),
         ];
 
         return view('transports.index', compact('transports', 'stats'));
@@ -106,5 +107,48 @@ class TransportController extends Controller
             'lng_transporteur'    => $transport->lng_transporteur,
             'position_updated_at' => $transport->position_updated_at?->toISOString(),
         ]);
+    }
+
+    /**
+     * Endpoint AJAX — retourne toutes les courses actives avec positions pour la carte live.
+     */
+    public function liveAll()
+    {
+        $query = DemandeTransport::with(['accident:id,localite,region,numero_rapport,latitude,longitude,gravite',
+                                         'transporteur:id,name'])
+            ->whereIn('statut', ['acceptee', 'en_cours'])
+            ->whereNotNull('lat_transporteur');
+
+        if (!$this->isGlobalAdmin()) {
+            $user = auth()->user();
+            $query->whereHas('accident', function ($q) use ($user) {
+                if ($this->isRegionalAdmin()) {
+                    $region = $user->getRegionEffective();
+                    if ($region) $q->where('region', $region);
+                } else {
+                    if ($user->service_id) {
+                        $q->where('service_id', $user->service_id);
+                    } elseif ($user->getRegionEffective()) {
+                        $q->where('region', $user->getRegionEffective());
+                    }
+                }
+            });
+        }
+
+        $transports = $query->get()->map(fn($t) => [
+            'id'                  => $t->id,
+            'statut'              => $t->statut,
+            'lat_transporteur'    => (float) $t->lat_transporteur,
+            'lng_transporteur'    => (float) $t->lng_transporteur,
+            'position_updated_at' => $t->position_updated_at?->toISOString(),
+            'transporteur_name'   => $t->transporteur?->name ?? 'Inconnu',
+            'localite'            => $t->accident?->localite ?? '—',
+            'gravite'             => $t->accident?->gravite ?? '—',
+            'dest_lat'            => $t->latitude_arrivee ? (float) $t->latitude_arrivee : ($t->accident?->latitude ? (float) $t->accident->latitude : null),
+            'dest_lng'            => $t->longitude_arrivee ? (float) $t->longitude_arrivee : ($t->accident?->longitude ? (float) $t->accident->longitude : null),
+            'detail_url'          => route('transports.show', $t->id),
+        ]);
+
+        return response()->json($transports);
     }
 }

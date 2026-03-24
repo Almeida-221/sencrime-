@@ -153,6 +153,14 @@ class AuthController extends Controller
         return response()->json(['message' => 'Numéro mis à jour', 'telephone' => $request->telephone]);
     }
 
+    // ── Enregistrer le token FCM pour les notifications push ───────
+    public function updateFcmToken(Request $request)
+    {
+        $request->validate(['fcm_token' => 'required|string|max:512']);
+        $request->user()->update(['fcm_token' => $request->fcm_token]);
+        return response()->json(['message' => 'Token FCM enregistré']);
+    }
+
     // ── Déconnexion ────────────────────────────────────────────────
     public function logout(Request $request)
     {

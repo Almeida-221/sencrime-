@@ -19,15 +19,21 @@ class DemandeTransportApiController extends Controller
             $userRegion = $user->region;
             $query->where(function ($q) use ($user, $userRegion) {
                 $q->where(function ($q2) use ($user, $userRegion) {
-                    // Demandes en attente : seulement celles de la même région
+                    // Demandes en attente (non expirées) : seulement celles de la même région
                     $q2->where('statut', 'en_attente');
                     if ($userRegion) {
                         $q2->whereHas('accident', fn($a) => $a->where('region', $userRegion));
                     }
-                })->orWhere('transporteur_id', $user->id); // ses propres courses (toutes régions)
+                })->orWhere(function ($q3) use ($user) {
+                    // Ses propres courses (toutes régions, sauf expirées jamais assignées à lui)
+                    $q3->where('transporteur_id', $user->id)
+                       ->whereIn('statut', ['acceptee', 'en_cours', 'terminee', 'annulee']);
+                });
             });
         } else {
-            $query->where('demandeur_id', $user->id);
+            // Le demandeur voit toutes ses demandes sauf les expirées (qui ont peu d'intérêt)
+            $query->where('demandeur_id', $user->id)
+                  ->where('statut', '!=', 'expiree');
         }
 
         return response()->json($query->paginate(20));

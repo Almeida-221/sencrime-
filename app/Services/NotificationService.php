@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\AppNotification;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use App\Services\FcmService;
 
 class NotificationService
 {
@@ -91,7 +92,7 @@ class NotificationService
     }
 
     /**
-     * Notifier tous les transporteurs actifs.
+     * Notifier tous les transporteurs actifs (in-app + push FCM).
      */
     public static function notifyTransporteurs(
         string $titre,
@@ -99,7 +100,16 @@ class NotificationService
         ?array $data = null,
         ?string $lien = null
     ): void {
-        $userIds = User::role('transporteur')->pluck('id')->toArray();
+        $transporteurs = User::role('transporteur')->get(['id', 'fcm_token']);
+        $userIds = $transporteurs->pluck('id')->toArray();
+
+        // Notification in-app (base de données)
         self::sendToMany($userIds, $titre, $message, 'transport_demande', 'fa-ambulance', 'danger', $data, $lien);
+
+        // Push FCM sur les appareils (même hors connexion, livré dès retour réseau)
+        $fcmTokens = $transporteurs->pluck('fcm_token')->filter()->values()->toArray();
+        if (!empty($fcmTokens)) {
+            FcmService::sendToTokens($fcmTokens, $titre, $message, $data ?? []);
+        }
     }
 }

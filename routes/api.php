@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::post('/auth/change-pin',       [AuthController::class, 'changePin']);
     Route::post('/auth/change-telephone', [AuthController::class, 'changeTelephone']);
+    Route::put('/auth/fcm-token',         [AuthController::class, 'updateFcmToken']);
 
     // Dashboard
     Route::get('/dashboard', [DashboardApiController::class, 'index']);
