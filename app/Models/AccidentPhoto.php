@@ -11,6 +11,8 @@ class AccidentPhoto extends Model
 
     protected $fillable = ['accident_id', 'chemin', 'nom_original', 'ordre'];
 
+    protected $appends = ['url'];
+
     public function accident()
     {
         return $this->belongsTo(Accident::class);
