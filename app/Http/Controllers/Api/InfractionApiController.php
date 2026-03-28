@@ -59,10 +59,15 @@ class InfractionApiController extends Controller
             'note_vocale'         => 'nullable|file|mimes:m4a,mp4,aac,ogg,webm,wav|max:20480',
         ]);
 
-        $user  = $request->user();
-        $year  = date('Y');
-        $last  = Infraction::whereYear('created_at', $year)->count() + 1;
-        $numero = 'INF-' . $year . '-' . str_pad($last, 5, '0', STR_PAD_LEFT);
+        $user   = $request->user();
+        $year   = date('Y');
+        $prefix = 'INF-' . $year . '-';
+        $maxNum = Infraction::withTrashed()
+            ->whereYear('created_at', $year)
+            ->where('numero_dossier', 'like', $prefix . '%')
+            ->max('numero_dossier');
+        $next   = $maxNum ? (intval(substr($maxNum, strlen($prefix))) + 1) : 1;
+        $numero = $prefix . str_pad($next, 5, '0', STR_PAD_LEFT);
 
         $infraction = Infraction::create([
             'numero_dossier'              => $numero,
@@ -89,10 +94,11 @@ class InfractionApiController extends Controller
         $typeInfraction = TypeInfraction::find($infraction->type_infraction_id);
         $montant = $typeInfraction?->amende_min ?? 0;
 
-        $numeroAmende = 'AME-' . date('Y') . '-' . str_pad(
-            Amende::whereYear('created_at', date('Y'))->count() + 1,
-            5, '0', STR_PAD_LEFT
-        );
+        $ameYear   = date('Y');
+        $amePrefix = 'AME-' . $ameYear . '-';
+        $ameMax    = Amende::withTrashed()->whereYear('created_at', $ameYear)->where('numero_amende', 'like', $amePrefix . '%')->max('numero_amende');
+        $ameNext   = $ameMax ? (intval(substr($ameMax, strlen($amePrefix))) + 1) : 1;
+        $numeroAmende = $amePrefix . str_pad($ameNext, 5, '0', STR_PAD_LEFT);
 
         Amende::create([
             'numero_amende'         => $numeroAmende,

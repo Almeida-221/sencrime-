@@ -59,7 +59,9 @@ class AmendeController extends Controller
         $services         = $this->scopedServices();
         $agents           = Agent::where('statut', 'actif')->orderBy('nom')->get();
         $infractions      = $this->applyScopeFilters(Infraction::query())->orderBy('numero_dossier')->get();
-        $numeroAmende     = 'AME-' . date('Y') . '-' . str_pad(Amende::whereYear('created_at', date('Y'))->count() + 1, 5, '0', STR_PAD_LEFT);
+        $ameYear = date('Y'); $amePrefix = 'AME-' . $ameYear . '-';
+        $ameMax  = Amende::withTrashed()->whereYear('created_at', $ameYear)->where('numero_amende', 'like', $amePrefix . '%')->max('numero_amende');
+        $numeroAmende = $amePrefix . str_pad($ameMax ? (intval(substr($ameMax, strlen($amePrefix))) + 1) : 1, 5, '0', STR_PAD_LEFT);
         return view('amendes.create', compact('typesInfractions', 'services', 'agents', 'infractions', 'numeroAmende'));
     }
 

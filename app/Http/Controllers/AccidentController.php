@@ -42,7 +42,9 @@ class AccidentController extends Controller
     {
         $services = $this->scopedServices();
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
-        $numeroRapport = 'ACC-' . date('Y') . '-' . str_pad(Accident::whereYear('created_at', date('Y'))->count() + 1, 5, '0', STR_PAD_LEFT);
+        $accYear = date('Y'); $accPrefix = 'ACC-' . $accYear . '-';
+        $accMax  = Accident::withTrashed()->whereYear('created_at', $accYear)->where('numero_rapport', 'like', $accPrefix . '%')->max('numero_rapport');
+        $numeroRapport = $accPrefix . str_pad($accMax ? (intval(substr($accMax, strlen($accPrefix))) + 1) : 1, 5, '0', STR_PAD_LEFT);
         return view('accidents.create', compact('services', 'agents', 'numeroRapport'));
     }
 
@@ -75,7 +77,7 @@ class AccidentController extends Controller
 
     public function show(Accident $accident)
     {
-        $accident->load(['service', 'agent', 'user']);
+        $accident->load(['service', 'agent', 'user', 'photos']);
         return view('accidents.show', compact('accident'));
     }
 

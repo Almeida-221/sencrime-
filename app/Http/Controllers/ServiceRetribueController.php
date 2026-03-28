@@ -37,7 +37,9 @@ class ServiceRetribueController extends Controller
     {
         $services = Service::where('actif', true)->orderBy('nom')->get();
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
-        $numeroMission = 'MIS-' . date('Y') . '-' . str_pad(ServiceRetribue::whereYear('created_at', date('Y'))->count() + 1, 5, '0', STR_PAD_LEFT);
+        $misYear = date('Y'); $misPrefix = 'MIS-' . $misYear . '-';
+        $misMax  = ServiceRetribue::withTrashed()->whereYear('created_at', $misYear)->where('numero_mission', 'like', $misPrefix . '%')->max('numero_mission');
+        $numeroMission = $misPrefix . str_pad($misMax ? (intval(substr($misMax, strlen($misPrefix))) + 1) : 1, 5, '0', STR_PAD_LEFT);
         return view('services_retribues.create', compact('services', 'agents', 'numeroMission'));
     }
 

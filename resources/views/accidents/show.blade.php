@@ -66,6 +66,35 @@
                     <p class="text-muted">{{ $accident->causes }}</p>
                 </div>
                 @endif
+
+                {{-- Note vocale --}}
+                @if($accident->note_vocale)
+                <div class="mt-3">
+                    <h6 class="fw-bold"><i class="fas fa-microphone me-1 text-danger"></i>Note vocale</h6>
+                    <audio controls class="w-100">
+                        <source src="{{ asset('storage/' . $accident->note_vocale) }}" type="audio/mpeg">
+                        Votre navigateur ne supporte pas l'audio.
+                    </audio>
+                </div>
+                @endif
+
+                {{-- Photos --}}
+                @if($accident->photos->isNotEmpty())
+                <div class="mt-3">
+                    <h6 class="fw-bold"><i class="fas fa-images me-1 text-primary"></i>Photos ({{ $accident->photos->count() }})</h6>
+                    <div class="row g-2">
+                        @foreach($accident->photos as $photo)
+                        <div class="col-6 col-md-4">
+                            <a href="{{ $photo->url }}" target="_blank" data-bs-toggle="modal" data-bs-target="#photoModal" data-src="{{ $photo->url }}">
+                                <img src="{{ $photo->url }}" alt="{{ $photo->nom_original }}"
+                                     class="img-fluid rounded shadow-sm"
+                                     style="height:120px;width:100%;object-fit:cover;cursor:pointer;">
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
     </div>
@@ -92,4 +121,25 @@
         </div>
     </div>
 </div>
+
+{{-- Modal photo --}}
+<div class="modal fade" id="photoModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border-0">
+            <div class="modal-header border-0 pb-0">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-2">
+                <img id="photoModalImg" src="" alt="Photo accident" class="img-fluid rounded" style="max-height:75vh;">
+            </div>
+        </div>
+    </div>
+</div>
+@push('scripts')
+<script>
+document.getElementById('photoModal').addEventListener('show.bs.modal', function(e) {
+    document.getElementById('photoModalImg').src = e.relatedTarget.dataset.src;
+});
+</script>
+@endpush
 @endsection

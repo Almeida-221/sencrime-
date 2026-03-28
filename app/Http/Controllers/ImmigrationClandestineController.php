@@ -43,7 +43,9 @@ class ImmigrationClandestineController extends Controller
     {
         $services = $this->scopedServices();
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
-        $numeroCas = 'IMM-' . date('Y') . '-' . str_pad(ImmigrationClandestine::whereYear('created_at', date('Y'))->count() + 1, 5, '0', STR_PAD_LEFT);
+        $immYear = date('Y'); $immPrefix = 'IMM-' . $immYear . '-';
+        $immMax  = ImmigrationClandestine::withTrashed()->whereYear('created_at', $immYear)->where('numero_cas', 'like', $immPrefix . '%')->max('numero_cas');
+        $numeroCas = $immPrefix . str_pad($immMax ? (intval(substr($immMax, strlen($immPrefix))) + 1) : 1, 5, '0', STR_PAD_LEFT);
         return view('immigrations.create', compact('services', 'agents', 'numeroCas'));
     }
 

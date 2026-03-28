@@ -51,8 +51,9 @@ class ImmigrationApiController extends Controller
 
         $user   = $request->user();
         $year   = date('Y');
-        $last   = ImmigrationClandestine::whereYear('created_at', $year)->count() + 1;
-        $numero = 'IMM-' . $year . '-' . str_pad($last, 5, '0', STR_PAD_LEFT);
+        $immPrefix = 'IMM-' . $year . '-';
+        $immMax    = ImmigrationClandestine::withTrashed()->whereYear('created_at', $year)->where('numero_cas', 'like', $immPrefix . '%')->max('numero_cas');
+        $numero    = $immPrefix . str_pad($immMax ? (intval(substr($immMax, strlen($immPrefix))) + 1) : 1, 5, '0', STR_PAD_LEFT);
 
         $imm = ImmigrationClandestine::create([
             'numero_cas'        => $numero,

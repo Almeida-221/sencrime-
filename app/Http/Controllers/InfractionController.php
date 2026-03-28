@@ -55,7 +55,9 @@ class InfractionController extends Controller
         $typesInfractions = TypeInfraction::where('actif', true)->orderBy('nom')->get();
         $services = $this->scopedServices();
         $agents = Agent::where('statut', 'actif')->orderBy('nom')->get();
-        $numeroDossier = 'INF-' . date('Y') . '-' . str_pad(Infraction::whereYear('created_at', date('Y'))->count() + 1, 5, '0', STR_PAD_LEFT);
+        $infYear = date('Y'); $infPrefix = 'INF-' . $infYear . '-';
+        $infMax  = Infraction::withTrashed()->whereYear('created_at', $infYear)->where('numero_dossier', 'like', $infPrefix . '%')->max('numero_dossier');
+        $numeroDossier = $infPrefix . str_pad($infMax ? (intval(substr($infMax, strlen($infPrefix))) + 1) : 1, 5, '0', STR_PAD_LEFT);
         return view('infractions.create', compact('typesInfractions', 'services', 'agents', 'numeroDossier'));
     }
 
